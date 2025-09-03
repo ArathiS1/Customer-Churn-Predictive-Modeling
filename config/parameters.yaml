@@ -1,0 +1,44 @@
+# Model parameters
+model:
+  random_state: 42
+  test_size: 0.2
+  cv_folds: 5
+  
+# Random Forest parameters
+random_forest:
+  n_estimators: [100, 200, 500]
+  max_depth: [6, 10, 20, None]
+  class_weight: "balanced"
+  
+# Preprocessing parameters
+preprocessing:
+  numeric_imputer: "median"
+  categorical_imputer: "constant"
+  categorical_fill_value: "Unknown"
+  
+# Feature definitions
+features:
+  numeric:
+    - tenure
+    - MonthlyCharges
+    - TotalCharges
+    - SeniorCitizen
+    - avg_monthly_calc
+  categorical:
+    - gender
+    - Partner
+    - Dependents
+    - PhoneService
+    - MultipleLines
+    - InternetService
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+    - Contract
+    - PaperlessBilling
+    - PaymentMethod
+  id: customerID
+  target: churn_flag
