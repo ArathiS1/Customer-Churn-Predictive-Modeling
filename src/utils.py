@@ -1,29 +1,33 @@
 import pandas as pd
 import numpy as np
+import yaml
+import pickle
+import json
+from typing import Dict, Any
+import matplotlib.pyplot as plt
 
-def create_lift_table(X_test, y_pred_proba, deciles=10):
-    """
-    Create a lift table for model evaluation
-    """
-    df_test = X_test.copy()
-    df_test['churn_prob'] = y_pred_proba
-    df_test['decile'] = pd.qcut(df_test['churn_prob'], deciles, labels=False, duplicates='drop')
-    
-    # Average churn probability and count per decile
-    lift_table = df_test.groupby('decile').agg(
-        avg_prob=('churn_prob', 'mean'),
-        count=('churn_prob', 'size')
-    ).sort_index(ascending=True)
-    
-    return lift_table
+def load_config(config_path: str) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
 
-def get_high_risk_customers(X_test, y_pred_proba, deciles=10):
-    """
-    Identify high-risk customers in the top decile
-    """
-    df_test = X_test.copy()
-    df_test['churn_prob'] = y_pred_proba
-    df_test['decile'] = pd.qcut(df_test['churn_prob'], deciles, labels=False, duplicates='drop')
-    
-    top_decile = df_test[df_test['decile'] == df_test['decile'].max()]
-    return top_decile
+def save_model(model, filepath: str):
+    """Save trained model to file."""
+    with open(filepath, 'wb') as file:
+        pickle.dump(model, file)
+
+def load_model(filepath: str):
+    """Load trained model from file."""
+    with open(filepath, 'rb') as file:
+        return pickle.load(file)
+
+def save_results(results: Dict[str, Any], filepath: str):
+    """Save results to JSON file."""
+    with open(filepath, 'w') as file:
+        json.dump(results, file, indent=4)
+
+def save_plot(fig, filepath: str, dpi: int = 300):
+    """Save matplotlib figure to file."""
+    fig.savefig(filepath, dpi=dpi, bbox_inches='tight')
+    plt.close(fig)
