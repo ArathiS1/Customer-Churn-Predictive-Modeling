@@ -1,6 +1,6 @@
 # Predictive Customer Churn Analysis | Diagnosing Risk and Driving Retention Strategy  
 
-
+<img src="images/Sales_Insights.png" alt="Sales Insights Dashboard" width="800"/> 
 https://github.com/ArathiS1/Customer-Churn-Predictive-Modeling/blob/main/results/SHAP%20value.png
 *Actual image of your SHAP plot*  
 
