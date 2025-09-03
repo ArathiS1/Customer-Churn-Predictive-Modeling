@@ -1,7 +1,11 @@
 # Predictive Customer Churn Analysis | Diagnosing Risk and Driving Retention Strategy  
 
-
-<img src="results/SHAP value.png" alt="Sales Insights Dashboard" width="800"/> 
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-2C2D72?style=for-the-badge&logo=pandas&logoColor=white)
+![Scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-017CEE?style=for-the-badge&logo=xgboost&logoColor=white)
+![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
+![SHAP](https://img.shields.io/badge/SHAP-Explainable%20AI-8A4182?style=for-the-badge)
 
 
 ---
@@ -16,8 +20,8 @@ I developed an end-to-end predictive analytics solution to diagnose the root cau
 
 - **Diagnose:** Uncover the key factors driving customer churn.  
 - **Predict:** Build a machine learning model to accurately score each customer's churn risk.  
-- **Actionize:** Provide a data-driven framework for the retention team to prioritize interventions.  
-
+- **Actionize:** Provide a data-driven framework for the retention team to prioritize interventions.
+   
 ---
 
 **🛠️ Tools Used**  
