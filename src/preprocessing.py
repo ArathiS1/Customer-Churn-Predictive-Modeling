@@ -4,80 +4,56 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from typing import Tuple, List
 
-def load_data(url=None, file_path=None):
-    """
-    Load the Telco Customer Churn dataset from a URL or local file
-    """
-    if file_path:
-        df = pd.read_csv(file_path)
-    elif url:
-        df = pd.read_csv(url)
-    else:
-        raise ValueError("Either url or file_path must be provided")
+def load_data(url: str) -> pd.DataFrame:
+    """Load dataset from URL."""
+    df = pd.read_csv(url)
+    print(f"Dataset shape: {df.shape}")
+    return df
+
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean and preprocess the raw data."""
+    # Convert TotalCharges to numeric
+    df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+    
+    # Fill missing values
+    df['TotalCharges'] = df['TotalCharges'].fillna(df['TotalCharges'].median())
+    df['tenure'] = pd.to_numeric(df['tenure'], errors='coerce').fillna(0)
+    df['MonthlyCharges'] = pd.to_numeric(df['MonthlyCharges'], errors='coerce')
+    
+    # Feature engineering
+    df['avg_monthly_calc'] = df['TotalCharges'] / np.where(df['tenure']>0, df['tenure'], np.nan)
+    df['avg_monthly_calc'] = df['avg_monthly_calc'].fillna(df['MonthlyCharges'])
+    
+    # Target mapping
+    df['churn_flag'] = df['Churn'].map({'Yes':1, 'No':0}).astype(int)
+    
+    # Remove duplicates and invalid rows
+    df = df.drop_duplicates(subset='customerID')
+    df = df[(df['MonthlyCharges'] >= 0) & (df['TotalCharges'] >= 0)]
     
     return df
 
-def clean_data(df):
-    """
-    Clean the raw dataset
-    """
-    # Create a copy to avoid modifying the original
-    df_clean = df.copy()
+def create_preprocessor(numeric_strategy: str = "median", 
+                       categorical_strategy: str = "constant",
+                       fill_value: str = "Unknown") -> ColumnTransformer:
+    """Create preprocessing pipeline."""
     
-    # Clean TotalCharges which sometimes is whitespace -> numeric with NaN
-    df_clean['TotalCharges'] = pd.to_numeric(df_clean['TotalCharges'], errors='coerce')
-    
-    # Simple imputation for numeric columns
-    df_clean['TotalCharges'] = df_clean['TotalCharges'].fillna(df_clean['TotalCharges'].median())
-    df_clean['tenure'] = pd.to_numeric(df_clean['tenure'], errors='coerce').fillna(0)
-    df_clean['MonthlyCharges'] = pd.to_numeric(df_clean['MonthlyCharges'], errors='coerce')
-    
-    # Feature engineering
-    df_clean['avg_monthly_calc'] = df_clean['TotalCharges'] / np.where(df_clean['tenure']>0, df_clean['tenure'], np.nan)
-    df_clean['avg_monthly_calc'] = df_clean['avg_monthly_calc'].fillna(df_clean['MonthlyCharges'])
-    
-    # Target mapping
-    df_clean['churn_flag'] = df_clean['Churn'].map({'Yes':1, 'No':0}).astype(int)
-    
-    # Remove duplicate customers
-    df_clean = df_clean.drop_duplicates(subset='customerID')
-    
-    # Remove invalid rows
-    df_clean = df_clean[(df_clean['MonthlyCharges'] >= 0) & (df_clean['TotalCharges'] >= 0)]
-    
-    return df_clean
-
-def get_feature_definitions():
-    """
-    Define feature sets for modeling
-    """
-    # Choose typical numeric & categorical cols from Telco dataset
     num_cols = ['tenure', 'MonthlyCharges', 'TotalCharges', 'SeniorCitizen', 'avg_monthly_calc']
-    
-    # categorical columns
     cat_cols = [
         'gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 'InternetService',
         'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport', 'StreamingTV',
         'StreamingMovies', 'Contract', 'PaperlessBilling', 'PaymentMethod'
     ]
     
-    id_cols = ['customerID']
-    target_col = 'churn_flag'
-    
-    return num_cols, cat_cols, id_cols, target_col
-
-def create_preprocessing_pipeline(num_cols, cat_cols):
-    """
-    Create the preprocessing pipeline
-    """
     num_pipe = Pipeline([
-        ('imp', SimpleImputer(strategy='median')),
+        ('imp', SimpleImputer(strategy=numeric_strategy)),
         ('scaler', StandardScaler())
     ])
 
     cat_pipe = Pipeline([
-        ('imp', SimpleImputer(strategy='constant', fill_value='Unknown')),
+        ('imp', SimpleImputer(strategy=categorical_strategy, fill_value=fill_value)),
         ('ohe', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
     ])
 
@@ -86,4 +62,14 @@ def create_preprocessing_pipeline(num_cols, cat_cols):
         ('cat', cat_pipe, cat_cols)
     ])
     
-    return preproc
+    return preproc, num_cols, cat_cols
+
+def prepare_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, List[str], List[str]]:
+    """Prepare features and target for modeling."""
+    preproc, num_cols, cat_cols = create_preprocessor()
+    feature_cols = num_cols + cat_cols
+    
+    X = df[feature_cols].copy()
+    y = df['churn_flag'].copy()
+    
+    return X, y, num_cols, cat_cols
