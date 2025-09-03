@@ -1,6 +1,7 @@
 # Predictive Customer Churn Analysis | Diagnosing Risk and Driving Retention Strategy  
 
-![SHAP Summary Plot](https://images/shap_summary_plot.png)  
+
+https://github.com/ArathiS1/Customer-Churn-Predictive-Modeling/blob/main/results/SHAP%20value.png
 *Actual image of your SHAP plot*  
 
 ---
